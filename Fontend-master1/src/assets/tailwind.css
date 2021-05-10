@@ -60,7 +60,7 @@
 .showresultp {
     @apply flex
             justify-center items-center
-            w-full h-full md:w-auto;
+            h-full md:w-auto;
 }
 
 .body {
@@ -83,7 +83,7 @@
 .showResult {
     @apply grid grid-cols-2 gap-4 md:gap-8
             justify-around md:justify-around            
-            py-4 h-auto w-auto md:w-auto;
+            py-4 h-auto md:w-auto;
 }
 
 .addeditbutton {
@@ -97,24 +97,33 @@
             md:absolute;
 }
 
-.cancelbutton {
+.cancelbuttontop {
     @apply text-lightpink
             bg-black
             hover:bg-opacity-80
             rounded                                                    
             p-2            
             font-mono
-            absolute bottom-16 right-20
-            md:absolute;
+            absolute top-16 right-20 md:absolute;
+}
+
+.cancelbuttondown {
+    @apply text-lightpink
+            bg-black
+            hover:bg-opacity-80
+            rounded                                                    
+            p-2
+            ml-2           
+            font-mono;
 }
 
 .editIcon {
-    @apply w-4 h-4 mt-4
+    @apply w-4 h-4 mt-2
             hover:opacity-60 ;
 }
 
 .deleteIcon {
-    @apply w-4 h-4 mt-4 ml-4
+    @apply w-4 h-4 mt-2 ml-4
             hover:opacity-60;
 }
 

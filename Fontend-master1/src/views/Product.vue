@@ -5,29 +5,31 @@
       <ul v-for="form in formResults" :key="form.id">
         <bor-der>
           <li>
-            <p class></p>
+            <div>
+              <img class="md:h-60 w-auto pb-2" :src="`${this.url}/Product/image/${form.product_id}/${form.path}`"/>
+            </div>
 
-            <p class="font-mono text-sm">{{ form.product_Name }}</p>
+            <p class="font-mono text-sm">Brand: {{ form.brand.brand_Name }}</p>
 
-            <p class="font-mono text-sm">{{ form.description }}</p>
+            <p class="font-mono text-sm">Model: {{ form.product_Name }}</p>
 
-            <p class="font-mono text-sm">{{ form.date }}</p>
-
-            <p class="font-mono text-sm">{{ form.brand.brand_Name }}</p>
+            <p class="font-mono text-sm">Spec: {{ form.description }}</p>
 
             <p
               v-for="colorName in form.colors"
               :key="colorName.color_Id"
               class="font-mono text-sm"
-            >{{ colorName.color_Name }}</p>
+            >Color: {{ colorName.color_Name }}</p>
 
-            <p class="font-mono text-sm">{{ form.price }}</p>
+            <p class="font-mono text-sm">Price: {{ form.price }}</p>
 
-            <button @click="showFormResults(form)" class="editIcon">
+            <p class="font-mono text-sm">Manufacture: {{ form.date }}</p>                
+
+            <button @click="showFormResults(form)"  class="editIcon">
               <img src="../assets/pencil.png" />
             </button>
 
-            <button @click="deleteFormResults(form.id)" class="deleteIcon">
+            <button @click="deleteFormResults(form.product_id)" class="deleteIcon">
               <img src="../assets/xmark.png" />
             </button>
           </li>
@@ -40,7 +42,7 @@
 
   <button v-show="!addedit" v-on:click="toggleDone()" class="addeditbutton">Add/Edit</button>
   <div v-show="addedit">
-    <button v-on:click="toggleDone()" class="cancelbutton">Cancel</button>
+    <button v-on:click="toggleDone()" class="cancelbuttontop ">Cancel</button>
     <div class="addeditp">
       <form @submit.prevent="submitForm">
         <bor-der>
@@ -186,6 +188,7 @@
 
           <div class="flex justify-center items-center">
             <button class="submitbutton" @click="validForm">Submit</button>
+            <button v-on:click="toggleDone()" class="cancelbuttondown">Cancel</button>
           </div>
         </bor-der>
       </form>
@@ -222,10 +225,11 @@ export default {
       colorList: [],
       selectColor: [],
       fileForm: null,
+      showSelectResult: null,
       i: 'https://files.catbox.moe/vq3v5e.png',
       editForm: false,
       editFormId: '',
-      url: 'http://localhost:8081'
+      url: 'http://localhost:80'
       //url: 'http://localhost:4000/formResults'
     }
   },
@@ -281,13 +285,6 @@ export default {
         //Edit-2
         if (this.editForm) {
           this.editFormResults({
-            id: this.editFormId,
-            name: this.nameForm,
-            description: this.desForm,
-            brand: this.brandForm,
-            color: this.selectColor,
-            date: this.dateForm,
-            price: this.priceForm
 
           })
         }
@@ -401,7 +398,7 @@ export default {
 
     async getBrandList() {
       try {
-        const res = await fetch(this.url + "/Brand") //,{mode: "no-cors"})
+        const res = await fetch(this.url + "/Brand")
         const resbrandlist = await res.json()
         return resbrandlist
         
@@ -423,12 +420,12 @@ export default {
     },
 
     //Delete
-    async deleteFormResults(deleteForm) {
+    async deleteFormResults(id) {
       try {
-        await fetch(`${this.url} + "/Product/delete/{product_id}"/${deleteForm}`, {
+        await fetch(`${this.url}/Product/delete/ + ${id}`, {
           method: 'DELETE'
         })
-        this.formResults = this.formResults.filter(form => form.id !== deleteForm)
+        this.reload()
       }
       catch (error) {
         console.log(`deleteEncourageResults False!!! ${error}`)
@@ -441,49 +438,38 @@ export default {
       this.editFormId = beforeForm.id
       this.nameForm = beforeForm.product_Name
       this.desForm = beforeForm.description
-      this.brandForm = beforeForm.brand.brand_Name
-
+      this.brandForm = beforeForm.brand
       this.dateForm = beforeForm.date
       this.priceForm = beforeForm.price
-      this.selectColor = beforeForm.colorName.color_Name
-
+      this.selectColor = beforeForm.colors
+      this.showSelectResult = beforeForm     
+      // console.log(`showSelectResult!!! ` + this.showSelectResult.product_id) 
     },
 
-    //const jsonPictureProduct = JSON.stringify(pictureProduct)
-    //const blob = new Blob([jsonPictureProduct], {
-    //type: 'application/json'
-    //})
-
-    //let formData = new FormData()
-    //formData.append('file', pictureProduct.imageFile, pictureProduct,image)
-    //formData.append('pictureProduct', blob)
-
-    async editFormResults(afterForm) {
+    async editFormResults() {
 
       const editedData =
         JSON.stringify({
-          name: afterForm.name,
-          date: afterForm.date,
-          description: afterForm.description,
-          brand: afterForm.brand,
-          color: afterForm.color,
-          price: afterForm.price,
-          path: this.fileForm.name
+          product_Name: this.nameForm,
+          date: this.dateForm,
+          description: this.descriptionForm,
+          brand: this.brandForm,
+          colors: this.selectColor,
+          price: this.priceForm,
+          // path: this.fileForm.name
         })
 
       const formData = new FormData()
-      formData.append('file', this.fileForm, this.fileForm.name)
-      formData.append('product', editedData)
+      // formData.append('file', this.fileForm, this.fileForm.name)
+      formData.append('newproduct', editedData)
 
       try {
-        const res = await fetch(`${this.url} + "/Product/{product_id}"/${afterForm.id}`, {
+        await fetch(`${this.url}/Product/ + ${this.showSelectResult.product_id}`, {
           method: 'PUT',
 
           body: formData
-        })
-        const resdata = await res.json()
-        this.formResults = this.formResults.map(formResults => formResults.id === afterForm.id
-          ? { ...formResults, data: resdata.data } : formResults)
+        })        
+        this.reload()
 
         this.editForm = false,
           this.editFormId = '',
@@ -498,7 +484,11 @@ export default {
       catch (error) {
         console.log(`editFormResults False!!! ${error}`)
       }
-    }
+    },
+
+    async reload() {
+    this.formResults = await this.getFormResults()    
+  }
 
   },
 

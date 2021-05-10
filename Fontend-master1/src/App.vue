@@ -1,5 +1,6 @@
 <template>
 
+  <div class="overflow-x-hidden">
   <nav class="navbg">
   <div class="nav">
     
@@ -12,5 +13,6 @@
   
   <router-view/>
 
+  </div>
 </template>
 
